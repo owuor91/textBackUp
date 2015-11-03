@@ -115,13 +115,29 @@ public class intro extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_intro, container, false);
+
+            Bundle args = getArguments();
+
+                   /* ((TextView) rootView.findViewById(R.id.section_label)).setText(
+                    Integer.toString(args.getInt(ARG_SECTION_NUMBER)));
             return rootView;
+*/
+            int position = args.getInt(ARG_SECTION_NUMBER);
 
-
-            /*switch (ARG_SECTION_NUMBER)
+            switch (position)
             {
-                case
-            }*/
+                case 1:
+                    ((TextView)rootView.findViewById(R.id.section_label)).setText("Welcome to Arafa");
+                    break;
+                case 2:
+                    ((TextView)rootView.findViewById(R.id.section_label)).setText("Back up your SMS to your gmail");
+                    break;
+                case 3:
+                    ((TextView)rootView.findViewById(R.id.section_label)).setText("Download sms history to other devices");
+                    break;
+            }
+
+            return  rootView;
         }
     }
 
