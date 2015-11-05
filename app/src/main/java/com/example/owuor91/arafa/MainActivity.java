@@ -1,41 +1,52 @@
 package com.example.owuor91.arafa;
 
+import android.app.ListActivity;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.List;
+
+public class MainActivity extends ListActivity {
     String msgData;
     TextView txtsms;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        //setContentView(R.layout.activity_main);
 
-        txtsms= (TextView)findViewById(R.id.txtsms);
+        List<SMSData> smsList = new ArrayList<SMSData>();
 
-        Cursor cursor = getContentResolver().query(Uri.parse("content://sms/inbox"), null, null,null,null);
-        if(cursor.moveToFirst()){
-            do {
-                msgData = "";
-                for (int idx=0; idx<cursor.getColumnCount(); idx++){
-                    msgData += ""+cursor.getColumnName(idx)+":"+cursor.getString(idx);
-                }
+        Uri uri = Uri.parse("content://sms/inbox");
+        Cursor c = getContentResolver().query(uri, null, null, null,null);
+        startManagingCursor(c);
 
+        if(c.moveToFirst()){
+            for (int i = 0; i< c.getCount(); i++){
+                SMSData sms = new SMSData();
+                sms.setBody(c.getString(c.getColumnIndexOrThrow("body")).toString());
+                sms.setNumber(c.getString(c.getColumnIndexOrThrow("address")).toString());
+                smsList.add(sms);
+                c.moveToNext();
             }
-            while (cursor.moveToNext());
         }
-        else {
-            Toast.makeText(this, "You have no messages", Toast.LENGTH_SHORT).show();
-        }
+        c.close();
+        setListAdapter(new ListAdapter(this, smsList));
+    }
 
-        txtsms.setText(msgData);
+    @Override
+    protected void onListItemClick(ListView l, View v, int position, long id) {
+        SMSData sms = (SMSData)getListAdapter().getItem(position);
+        Toast.makeText(getApplicationContext(), sms.getBody(), Toast.LENGTH_LONG).show();
     }
 
     @Override
