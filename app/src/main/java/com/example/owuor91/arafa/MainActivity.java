@@ -45,14 +45,15 @@ public class MainActivity extends AppCompatActivity {
         ListAdapter smsAdapter = new ListAdapter(this, smsList);
 
         lvSMS.setAdapter(smsAdapter);
+        setUpToolbar();
     }
 
 
-    @Override
+    /*@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
-    }
+    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -64,7 +65,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setUpToolbar() {
-        //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitleTextColor(0xFFFFFFFF);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Messages");
     }
 }
