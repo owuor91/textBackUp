@@ -16,16 +16,17 @@ import android.support.v7.widget.Toolbar;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends ListActivity {
+public class MainActivity extends AppCompatActivity {
     String msgData;
-    TextView txtsms;
+    ListView lvSMS;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main);
 
         List<SMSData> smsList = new ArrayList<SMSData>();
+        lvSMS = (ListView)findViewById(R.id.lvSMS);
 
         Uri uri = Uri.parse("content://sms/inbox");
         Cursor c = getContentResolver().query(uri, null, null, null,null);
@@ -40,14 +41,12 @@ public class MainActivity extends ListActivity {
             }
         }
         c.close();
-        setListAdapter(new ListAdapter(this, smsList));
+
+        ListAdapter smsAdapter = new ListAdapter(this, smsList);
+
+        lvSMS.setAdapter(smsAdapter);
     }
 
-    @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
-        SMSData sms = (SMSData)getListAdapter().getItem(position);
-        Toast.makeText(getApplicationContext(), sms.getBody(), Toast.LENGTH_LONG).show();
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
