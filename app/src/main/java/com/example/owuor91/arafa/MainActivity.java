@@ -28,7 +28,6 @@ public class MainActivity extends ListActivity {
 
         Uri uri = Uri.parse("content://sms/inbox");
         Cursor c = getContentResolver().query(uri, null, null, null,null);
-        startManagingCursor(c);
 
         if(c.moveToFirst()){
             for (int i = 0; i< c.getCount(); i++){
@@ -51,21 +50,16 @@ public class MainActivity extends ListActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         int id = item.getItemId();
-
-
         if (id == R.id.action_settings) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 }
