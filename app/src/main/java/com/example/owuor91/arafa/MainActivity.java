@@ -65,7 +65,7 @@ public class MainActivity extends ListActivity {
     }
 
     public void setUpToolbar() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         
     }
 }
