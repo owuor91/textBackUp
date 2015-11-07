@@ -1,11 +1,15 @@
 package com.example.owuor91.arafa;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.ListActivity;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,12 +21,14 @@ import android.support.v7.widget.Toolbar;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static android.widget.Toast.LENGTH_SHORT;
 
 public class MainActivity extends AppCompatActivity {
     String msgData;
     ListView lvSMS;
+    Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,19 +61,22 @@ public class MainActivity extends AppCompatActivity {
         lvSMS.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                SMSData contact = (SMSData)lvSMS.getItemAtPosition(position);
+                SMSData contact = (SMSData) lvSMS.getItemAtPosition(position);
             }
         });
+        getEmail();
     }
 
-
-
-
-    /*@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }*/
+    public  void getEmail(){
+        context = this.getBaseContext();
+        Pattern emailPattern = Patterns.EMAIL_ADDRESS;
+        Account[] accounts = AccountManager.get(context).getAccounts();
+        Account account= accounts[0];
+            if (emailPattern.matcher(account.name).matches()){
+                String yourEmail = account.name;
+                Toast.makeText(this, yourEmail, Toast.LENGTH_LONG).show();
+            }
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
