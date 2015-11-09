@@ -28,13 +28,20 @@ import static android.widget.Toast.LENGTH_SHORT;
 public class MainActivity extends AppCompatActivity {
     String msgData;
     ListView lvSMS;
-    Context context;
+    public Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        context = this.getBaseContext();
+        setUpToolbar();
+        getSMS();
+        getEmail();
+    }
+
+    public void getSMS(){
         List<SMSData> smsList = new ArrayList<SMSData>();
         lvSMS = (ListView)findViewById(R.id.lvSMS);
 
@@ -56,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
         ListAdapter smsAdapter = new ListAdapter(this, smsList);
 
         lvSMS.setAdapter(smsAdapter);
-        setUpToolbar();
 
         lvSMS.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -64,11 +70,9 @@ public class MainActivity extends AppCompatActivity {
                 SMSData contact = (SMSData) lvSMS.getItemAtPosition(position);
             }
         });
-        getEmail();
     }
 
     public  void getEmail(){
-        context = this.getBaseContext();
         Pattern emailPattern = Patterns.EMAIL_ADDRESS;
         Account[] accounts = AccountManager.get(context).getAccounts();
         Account account= accounts[0];
