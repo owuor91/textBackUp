@@ -1,7 +1,10 @@
 package com.example.owuor91.arafa;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.Locale;
 
+import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -118,10 +121,6 @@ public class intro extends AppCompatActivity {
 
             Bundle args = getArguments();
 
-                   /* ((TextView) rootView.findViewById(R.id.section_label)).setText(
-                    Integer.toString(args.getInt(ARG_SECTION_NUMBER)));
-            return rootView;
-*/
             int position = args.getInt(ARG_SECTION_NUMBER);
 
             switch (position)

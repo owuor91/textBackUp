@@ -4,8 +4,10 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,6 +21,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v7.widget.Toolbar;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -26,7 +31,7 @@ import java.util.regex.Pattern;
 import static android.widget.Toast.LENGTH_SHORT;
 
 public class MainActivity extends AppCompatActivity {
-    String msgData;
+    public String body="";
     ListView lvSMS;
     public Context context;
 
@@ -39,14 +44,16 @@ public class MainActivity extends AppCompatActivity {
         setUpToolbar();
         getSMS();
         getEmail();
+        saveToFile();
     }
 
-    public void getSMS(){
+
+    public List<SMSData> getSMS(){
         List<SMSData> smsList = new ArrayList<SMSData>();
         lvSMS = (ListView)findViewById(R.id.lvSMS);
 
         Uri uri = Uri.parse("content://sms");
-        Cursor c = getContentResolver().query(uri, null, null, null,null);
+        Cursor c = getContentResolver().query(uri, null, null, null, null);
 
         if(c.moveToFirst()){
             for (int i = 0; i< c.getCount(); i++){
@@ -68,8 +75,29 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 SMSData contact = (SMSData) lvSMS.getItemAtPosition(position);
+                Intent intent = new Intent(context,ViewText.class);
+                startActivity(intent);
             }
         });
+
+        return smsList;
+    }
+
+    public void saveToFile(){
+        String fileName = "sms_file.txt";
+        FileOutputStream outputStream;
+           List<SMSData> messages = this.getSMS();
+           for (int i=0; i<messages.size(); i++){
+               body += messages.get(i).getBody();
+           }
+        try {
+            outputStream = openFileOutput(fileName, Context.MODE_PRIVATE);
+            outputStream.write(body.getBytes());
+            outputStream.close();
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public  void getEmail(){
@@ -82,14 +110,6 @@ public class MainActivity extends AppCompatActivity {
             }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     public void setUpToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
