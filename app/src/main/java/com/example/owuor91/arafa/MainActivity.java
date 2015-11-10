@@ -31,7 +31,8 @@ import java.util.regex.Pattern;
 import static android.widget.Toast.LENGTH_SHORT;
 
 public class MainActivity extends AppCompatActivity {
-    public String body="";
+    public String body, address, row, content="";
+    public long datetime=0;
     ListView lvSMS;
     public Context context;
 
@@ -88,11 +89,15 @@ public class MainActivity extends AppCompatActivity {
         FileOutputStream outputStream;
            List<SMSData> messages = this.getSMS();
            for (int i=0; i<messages.size(); i++){
-               body += messages.get(i).getBody();
+               address = messages.get(i).getNumber();
+               body = messages.get(i).getBody();
+               datetime = messages.get(i).getDate();
+               row = address + " "+ body + " "+datetime;
+               content+=row + "\n";
            }
         try {
             outputStream = openFileOutput(fileName, Context.MODE_PRIVATE);
-            outputStream.write(body.getBytes());
+            outputStream.write(content.getBytes());
             outputStream.close();
         }
         catch (Exception e){

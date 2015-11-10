@@ -43,7 +43,7 @@ public class ViewText extends AppCompatActivity {
             String line;
             while ((line=bufferedReader.readLine())!=null){
                 stringBuilder.append(line);
-                goodtext+=line;
+                goodtext+=line+"\n"+"\n";
             }
         }
         catch (Exception e){
