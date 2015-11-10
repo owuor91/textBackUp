@@ -7,12 +7,9 @@
     </style>
 
 
-
     <style name="AppTheme2" parent="Theme.AppCompat.Light.NoActionBar">
 
     </style>
-
-
 
 
     <style name="splash" parent="AppTheme2">
@@ -20,4 +17,9 @@
     </style>
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="Toolbar.TitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">25dp</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
 </resources>
