@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.owuor91.textbackup.R;
+
 import java.util.List;
 
 public class ListAdapter extends ArrayAdapter<SMSData> {

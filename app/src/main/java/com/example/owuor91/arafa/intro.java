@@ -21,6 +21,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.owuor91.textbackup.R;
+
 public class intro extends AppCompatActivity {
 
     SectionsPagerAdapter mSectionsPagerAdapter;

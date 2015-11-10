@@ -11,9 +11,15 @@
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
         app:titleTextAppearance="@style/Toolbar.TitleText"/>
-    <ListView
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/lvSMS"
-        android:layout_below="@+id/toolbar"/>
+        android:id="@+id/swipelayout"
+        android:layout_below="@+id/toolbar">
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/lvSMS"
+           />
+    </android.support.v4.widget.SwipeRefreshLayout>
 </RelativeLayout>
