@@ -1,6 +1,5 @@
-package com.example.owuor91.arafa;
+package com.owuor91.textbackup;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;

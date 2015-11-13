@@ -1,4 +1,4 @@
-package com.example.owuor91.arafa;
+package com.owuor91.textbackup;
 
 
 import android.content.Context;
@@ -7,8 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
-
-import com.owuor91.textbackup.R;
 
 import java.util.List;
 

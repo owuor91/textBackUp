@@ -1,7 +1,5 @@
-package com.example.owuor91.arafa;
+package com.owuor91.textbackup;
 
-
-import java.sql.Timestamp;
 
 public class SMSData {
     private String number;
