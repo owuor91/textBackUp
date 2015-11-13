@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity{
         getSMS();
         getEmail();
         saveToFile();
-        //swipeLayout();
+        swipeLayout();
 
 
     }

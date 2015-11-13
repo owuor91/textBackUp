@@ -38,7 +38,7 @@ import com.google.android.gms.drive.MetadataChangeSet;
 
 public class ViewText extends AppCompatActivity implements ConnectionCallbacks, OnConnectionFailedListener{
 
-    private static final String TAG = "drive-quickstart";
+    private static final String TAG = "Save file ";
     private static final int REQUEST_CODE_CAPTURE_IMAGE = 1;
     private static final int REQUEST_CODE_CREATOR = 2;
     private static final int REQUEST_CODE_RESOLUTION = 3;
@@ -126,7 +126,9 @@ public class ViewText extends AppCompatActivity implements ConnectionCallbacks, 
                 if (resultCode==RESULT_OK){
                     Log.i(TAG, "Image successfully saved");
                     bitmapToSave = null;
-                    startActivityForResult(new Intent(MediaStore.ACTION_IMAGE_CAPTURE),REQUEST_CODE_CAPTURE_IMAGE);
+                    Intent intent = new Intent(this, MainActivity.class);
+                    startActivity(intent);
+                    //startActivityForResult(new Intent(MediaStore.ACTION_IMAGE_CAPTURE),REQUEST_CODE_CAPTURE_IMAGE);
                 }
                 break;
         }
