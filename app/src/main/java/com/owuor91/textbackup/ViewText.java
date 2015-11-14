@@ -20,6 +20,7 @@ import com.owuor91.textbackup.R;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -45,10 +46,12 @@ public class ViewText extends AppCompatActivity implements ConnectionCallbacks, 
 
     private GoogleApiClient googleApiClient;
     private Bitmap bitmapToSave;
+    private File txtFile;
 
     private void saveFileToDrive(){
         Log.i(TAG, "Creating new contents.");
         final Bitmap image = bitmapToSave;
+        final File file = txtFile;
 
         Drive.DriveApi.newDriveContents(googleApiClient)
                 .setResultCallback(new ResultCallback<DriveContentsResult>() {
@@ -62,21 +65,30 @@ public class ViewText extends AppCompatActivity implements ConnectionCallbacks, 
                         Log.i(TAG,"New contents created");
                         OutputStream outputStream = driveContentsResult.getDriveContents().getOutputStream();
 
-                        ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
-                        image.compress(Bitmap.CompressFormat.PNG, 100,bitmapStream);
+                        /*ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
+                        image.compress(Bitmap.CompressFormat.PNG, 100,bitmapStream);*/
+
                         try {
-                            outputStream.write(bitmapStream.toByteArray());
+                            FileInputStream fileInputStream = getBaseContext().openFileInput("sms_file.txt");
+                            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                            int nRead;
+                            byte[] data = new byte[16384];
+                            while ((nRead=fileInputStream.read(data,0,data.length))!=-1){
+                                byteArrayOutputStream.write(data,0,nRead);
+                            }
+                            byteArrayOutputStream.flush();
+                            outputStream.write(byteArrayOutputStream.toByteArray());
                         }
                         catch (IOException io){
                             Log.i(TAG, "Unable to write file contents");
                         }
 
                         MetadataChangeSet metadataChangeSet = new MetadataChangeSet.Builder()
-                                .setMimeType("image/jpeg")
-                                .setTitle("Camera Photo.png")
+                                .setMimeType("text/plain")
+                                .setTitle("txtfile")
                                 .build();
 
-                        IntentSender intentSender = Drive.DriveApi.newCreateFileActivityBuilder()
+                        /*IntentSender intentSender = Drive.DriveApi.newCreateFileActivityBuilder()
                                 .setInitialMetadata(metadataChangeSet)
                                 .setInitialDriveContents(driveContentsResult.getDriveContents())
                                 .build(googleApiClient);
@@ -87,7 +99,10 @@ public class ViewText extends AppCompatActivity implements ConnectionCallbacks, 
                         }
                         catch (IntentSender.SendIntentException e){
                             Log.i(TAG,"Failed to launch file chooser");
-                        }
+                        }*/
+
+                        Drive.DriveApi.getRootFolder(googleApiClient)
+                                .createFile(googleApiClient, metadataChangeSet, driveContentsResult.getDriveContents());
                     }
                 });
     }
@@ -153,10 +168,10 @@ public class ViewText extends AppCompatActivity implements ConnectionCallbacks, 
     @Override
     public void onConnected(Bundle bundle) {
         Log.i(TAG, "API client connected");
-        if (bitmapToSave==null){
+        /*if (bitmapToSave==null){
             startActivityForResult(new Intent(MediaStore.ACTION_IMAGE_CAPTURE),REQUEST_CODE_CAPTURE_IMAGE);
             return;
-        }
+        }*/
         saveFileToDrive();
     }
 
