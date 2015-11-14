@@ -39,8 +39,9 @@ import com.google.android.gms.drive.MetadataChangeSet;
 
 
 public class MainActivity extends AppCompatActivity implements ConnectionCallbacks, OnConnectionFailedListener{
-    public String body, address, row, content="";
-    public long datetime=0;
+    private String body, address, row, content="";
+    private long datetime=0;
+    private int type;
     ListView lvSMS;
     public Context context;
     SwipeRefreshLayout swipe;
@@ -61,8 +62,6 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         getEmail();
         saveToFile();
         swipeLayout();
-
-
     }
 
 
@@ -132,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                 sms.setBody(c.getString(c.getColumnIndexOrThrow("body")).toString());
                 sms.setNumber(c.getString(c.getColumnIndexOrThrow("address")).toString());
                 sms.setDate(c.getLong(c.getColumnIndexOrThrow("date")));
+                sms.setType(c.getInt(c.getColumnIndexOrThrow("type")));
                 smsList.add(sms);
                 c.moveToNext();
             }
@@ -162,7 +162,8 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                address = messages.get(i).getNumber();
                body = messages.get(i).getBody();
                datetime = messages.get(i).getDate();
-               row = address + " "+ body + " "+datetime;
+               type = messages.get(i).getType();
+               row = address + " "+ body + " "+datetime + " " +type;
                content+=row + "\n";
            }
         try {
@@ -235,7 +236,6 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     @Override
     public void onConnected(Bundle bundle) {
         Log.i(TAG, "API client connected");
-
         saveFileToDrive();
     }
 

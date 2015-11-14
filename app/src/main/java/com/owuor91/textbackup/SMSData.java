@@ -5,6 +5,7 @@ public class SMSData {
     private String number;
     private String body;
     private Long date;
+    private int type;
 
     public  String getNumber(){
         return number;
@@ -28,5 +29,13 @@ public class SMSData {
 
     public void  setDate(Long date){
         this.date = date;
+    }
+
+    public int getType(){
+        return type;
+    }
+
+    public void setType(int type){
+        this.type = type;
     }
 }
