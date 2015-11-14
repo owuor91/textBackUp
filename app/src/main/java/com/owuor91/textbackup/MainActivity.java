@@ -18,10 +18,12 @@ import android.widget.ListView;
 import android.widget.Toast;
 import android.support.v7.widget.Toolbar;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,9 +35,17 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.drive.Drive;
+import com.google.android.gms.drive.DriveApi;
+import com.google.android.gms.drive.DriveApi.DriveIdResult;
 import com.google.android.gms.drive.DriveApi.DriveContentsResult;
+import com.google.android.gms.drive.DriveContents;
+import com.google.android.gms.drive.DriveFile;
+import com.google.android.gms.drive.DriveId;
+import com.google.android.gms.drive.DriveResource;
 import com.google.android.gms.drive.MetadataChangeSet;
+import com.google.android.gms.drive.DriveResource.MetadataResult;
 
 
 public class MainActivity extends AppCompatActivity implements ConnectionCallbacks, OnConnectionFailedListener{
@@ -48,8 +58,9 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
     private static final String TAG = "Save file ";
     private static final int REQUEST_CODE_RESOLUTION = 3;
-
+    private FileOutputStream outputStream;
     private GoogleApiClient googleApiClient;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,51 +70,14 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         context = this.getBaseContext();
         setUpToolbar();
         getSMS();
-        getEmail();
+        //getEmail();
         saveToFile();
         swipeLayout();
+
+
+
     }
 
-
-    private void saveFileToDrive(){
-        Log.i(TAG, "Creating new contents.");
-
-        Drive.DriveApi.newDriveContents(googleApiClient)
-                .setResultCallback(new ResultCallback<DriveContentsResult>() {
-                    @Override
-                    public void onResult(DriveContentsResult driveContentsResult) {
-                        if (!driveContentsResult.getStatus().isSuccess()) {
-                            Log.i(TAG, "Failed to create new contents");
-                            return;
-                        }
-
-                        Log.i(TAG, "New contents created");
-                        OutputStream outputStream = driveContentsResult.getDriveContents().getOutputStream();
-
-                        try {
-                            FileInputStream fileInputStream = getBaseContext().openFileInput("sms_file.txt");
-                            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                            int nRead;
-                            byte[] data = new byte[16384];
-                            while ((nRead = fileInputStream.read(data, 0, data.length)) != -1) {
-                                byteArrayOutputStream.write(data, 0, nRead);
-                            }
-                            byteArrayOutputStream.flush();
-                            outputStream.write(byteArrayOutputStream.toByteArray());
-                        } catch (IOException io) {
-                            Log.i(TAG, "Unable to write file contents");
-                        }
-
-                        MetadataChangeSet metadataChangeSet = new MetadataChangeSet.Builder()
-                                .setMimeType("text/plain")
-                                .setTitle("txtfile")
-                                .build();
-
-                        Drive.DriveApi.getRootFolder(googleApiClient)
-                                .createFile(googleApiClient, metadataChangeSet, driveContentsResult.getDriveContents());
-                    }
-                });
-    }
 
     public void swipeLayout(){
         swipe = (SwipeRefreshLayout)findViewById(R.id.swipelayout);
@@ -111,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
             @Override
             public void onRefresh() {
                 getSMS();
+                //updateFile();
                 swipe.setRefreshing(false);
             }
         });
@@ -154,9 +129,9 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     }
 
 
-    public void saveToFile(){
+    public FileOutputStream saveToFile(){
         String fileName = "sms_file.txt";
-        FileOutputStream outputStream;
+
            List<SMSData> messages = this.getSMS();
            for (int i=0; i<messages.size(); i++){
                address = messages.get(i).getNumber();
@@ -174,6 +149,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         catch (Exception e){
             e.printStackTrace();
         }
+        return outputStream;
     }
 
     public  void getEmail(){
@@ -236,11 +212,103 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     @Override
     public void onConnected(Bundle bundle) {
         Log.i(TAG, "API client connected");
-        saveFileToDrive();
+        //saveFileToDrive();
     }
 
     @Override
     public void onConnectionSuspended(int i) {
         Log.i(TAG, "GoogleAPIClient connection suspended");
     }
+
+    private void saveFileToDrive(){
+        Log.i(TAG, "Creating new contents.");
+
+        Drive.DriveApi.newDriveContents(googleApiClient)
+                .setResultCallback(new ResultCallback<DriveContentsResult>() {
+                    @Override
+                    public void onResult(DriveContentsResult driveContentsResult) {
+                        if (!driveContentsResult.getStatus().isSuccess()) {
+                            Log.i(TAG, "Failed to create new contents");
+                            return;
+                        }
+
+                        Log.i(TAG, "New contents created");
+                        OutputStream outputStream = driveContentsResult.getDriveContents().getOutputStream();
+
+                        try {
+                            FileInputStream fileInputStream = getBaseContext().openFileInput("sms_file.txt");
+                            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                            int nRead;
+                            byte[] data = new byte[16384];
+                            while ((nRead = fileInputStream.read(data, 0, data.length)) != -1) {
+                                byteArrayOutputStream.write(data, 0, nRead);
+                            }
+                            byteArrayOutputStream.flush();
+                            outputStream.write(byteArrayOutputStream.toByteArray());
+                        } catch (IOException io) {
+                            Log.i(TAG, "Unable to write file contents");
+                        }
+
+                        MetadataChangeSet metadataChangeSet = new MetadataChangeSet.Builder()
+                                .setMimeType("text/plain")
+                                .setTitle("txtfile")
+                                .build();
+
+                        Drive.DriveApi.getRootFolder(googleApiClient)
+                                .createFile(googleApiClient, metadataChangeSet, driveContentsResult.getDriveContents());
+                    }
+                });
+    }
+
+
+    private void updateFile(){
+        final FileOutputStream latestLocal = this.saveToFile();
+        final ResultCallback<DriveIdResult> idResultResultCallback = new ResultCallback<DriveIdResult>() {
+            @Override
+            public void onResult(DriveIdResult driveIdResult) {
+                if (!driveIdResult.getStatus().isSuccess()){
+                    return;
+                }
+               DriveId driveId = driveIdResult.getDriveId();
+               //DriveFile driveFile = driveId.asDriveFile();
+
+               DriveFile driveFile = Drive.DriveApi.getFile(googleApiClient, driveId);
+                driveFile.open(googleApiClient, DriveFile.MODE_READ_ONLY, null)
+                        .setResultCallback(new ResultCallback<DriveContentsResult>() {
+                            @Override
+                            public void onResult(DriveContentsResult driveContentsResult) {
+                                if (!driveContentsResult.getStatus().isSuccess()) {
+                                    Log.i(TAG, "File can't be opened");
+                                    return;
+                                }
+
+                                DriveContents driveContents = driveContentsResult.getDriveContents();
+                                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(driveContents.getInputStream()));
+                                StringBuilder stringBuilder = new StringBuilder();
+                                String line;
+                                try {
+                                    while ((line = bufferedReader.readLine()) != null) {
+                                        stringBuilder.append(line);
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                String driveContentsString = stringBuilder.toString();
+                                Toast.makeText(getApplicationContext(), "wow", Toast.LENGTH_SHORT).show();
+                                String localContentsString = latestLocal.toString();
+
+                                Log.i("LONG DRIVE CONTENTS", driveContentsString);
+
+                                /*driveContents.commit(googleApiClient, null).setResultCallback(new ResultCallback<Status>() {
+                                    @Override
+                                    public void onResult(Status status) {
+
+                                    }
+                                });*/
+                            }
+                        });
+            }
+        };
+    }
+
 }
