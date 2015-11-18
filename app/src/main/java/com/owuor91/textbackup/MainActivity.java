@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,6 +26,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -216,8 +219,8 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     @Override
     public void onConnected(Bundle bundle) {
         Log.i(TAG, "API client connected");
-        //saveFileToDrive();
-        updateFile();
+        saveFileToDrive();
+        //updateFile();
     }
 
     @Override
@@ -275,7 +278,32 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                 int resCount = metadataBuffer.getCount();
                 if (resCount>0){
                     DriveId fileDriveID = metadataBuffer.get(0).getDriveId();
-                    Log.i("FILEDRIVEID", " "+fileDriveID);
+                    DriveFile driveFile = Drive.DriveApi.getFile(googleApiClient,fileDriveID);
+                    driveFile.open(googleApiClient, DriveFile.MODE_READ_WRITE, null)
+                            .setResultCallback(new ResultCallback<DriveContentsResult>() {
+                                @Override
+                                public void onResult(DriveContentsResult driveContentsResult) {
+                                    if (!driveContentsResult.getStatus().isSuccess()) {
+                                        Log.i(TAG, "File can't be opened");
+                                        return;
+                                    }
+
+                                    DriveContents driveContents = driveContentsResult.getDriveContents();
+                                    try {
+                                        ParcelFileDescriptor parcelFileDescriptor = driveContents.getParcelFileDescriptor();
+                                        FileInputStream fileInputStream = new FileInputStream(parcelFileDescriptor.getFileDescriptor());
+
+                                        fileInputStream.read(new byte[fileInputStream.available()]);
+
+                                        FileOutputStream fileOutputStream = new FileOutputStream(parcelFileDescriptor.getFileDescriptor());
+                                        Writer writer = new OutputStreamWriter(fileOutputStream);
+                                        writer.append(" THIS IS NEW APPENDED TITLE SKIA HIYO SONG, MINI MJANJA AISEE SHAKE YOUR NGOMA SASA");
+                                    }
+                                    catch (IOException e){
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
                 }
             }
         });
