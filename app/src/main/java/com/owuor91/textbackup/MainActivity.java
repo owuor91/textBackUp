@@ -44,8 +44,12 @@ import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.DriveResource;
+import com.google.android.gms.drive.MetadataBuffer;
 import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.DriveResource.MetadataResult;
+import com.google.android.gms.drive.query.Filters;
+import com.google.android.gms.drive.query.Query;
+import com.google.android.gms.drive.query.SearchableField;
 
 
 public class MainActivity extends AppCompatActivity implements ConnectionCallbacks, OnConnectionFailedListener{
@@ -213,6 +217,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     public void onConnected(Bundle bundle) {
         Log.i(TAG, "API client connected");
         //saveFileToDrive();
+        updateFile();
     }
 
     @Override
@@ -251,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
                         MetadataChangeSet metadataChangeSet = new MetadataChangeSet.Builder()
                                 .setMimeType("text/plain")
-                                .setTitle("txtfile")
+                                .setTitle("sms_file.txt")
                                 .build();
 
                         Drive.DriveApi.getRootFolder(googleApiClient)
@@ -262,7 +267,18 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
 
     private void updateFile(){
-
+        Query query  = new Query.Builder().addFilter(Filters.eq(SearchableField.TITLE, "sms_file.txt")).build();
+        Drive.DriveApi.query(googleApiClient, query).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
+            @Override
+            public void onResult(DriveApi.MetadataBufferResult metadataBufferResult) {
+                MetadataBuffer metadataBuffer = metadataBufferResult.getMetadataBuffer();
+                int resCount = metadataBuffer.getCount();
+                if (resCount>0){
+                    DriveId fileDriveID = metadataBuffer.get(0).getDriveId();
+                    Log.i("FILEDRIVEID", " "+fileDriveID);
+                }
+            }
+        });
     }
 
 }
