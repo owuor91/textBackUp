@@ -219,8 +219,8 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     @Override
     public void onConnected(Bundle bundle) {
         Log.i(TAG, "API client connected");
-        saveFileToDrive();
-        //updateFile();
+        //saveFileToDrive();
+        updateFile();
     }
 
     @Override
@@ -259,7 +259,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
                         MetadataChangeSet metadataChangeSet = new MetadataChangeSet.Builder()
                                 .setMimeType("text/plain")
-                                .setTitle("sms_file.txt")
+                                .setTitle("txtfile.txt")
                                 .build();
 
                         Drive.DriveApi.getRootFolder(googleApiClient)
@@ -270,7 +270,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
 
     private void updateFile(){
-        Query query  = new Query.Builder().addFilter(Filters.eq(SearchableField.TITLE, "sms_file.txt")).build();
+        Query query  = new Query.Builder().addFilter(Filters.eq(SearchableField.TITLE, "txtfile.txt")).build();
         Drive.DriveApi.query(googleApiClient, query).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
             @Override
             public void onResult(DriveApi.MetadataBufferResult metadataBufferResult) {
