@@ -262,53 +262,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
 
     private void updateFile(){
-        final FileOutputStream latestLocal = this.saveToFile();
-        final ResultCallback<DriveIdResult> idResultResultCallback = new ResultCallback<DriveIdResult>() {
-            @Override
-            public void onResult(DriveIdResult driveIdResult) {
-                if (!driveIdResult.getStatus().isSuccess()){
-                    return;
-                }
-               DriveId driveId = driveIdResult.getDriveId();
-               //DriveFile driveFile = driveId.asDriveFile();
 
-               DriveFile driveFile = Drive.DriveApi.getFile(googleApiClient, driveId);
-                driveFile.open(googleApiClient, DriveFile.MODE_READ_ONLY, null)
-                        .setResultCallback(new ResultCallback<DriveContentsResult>() {
-                            @Override
-                            public void onResult(DriveContentsResult driveContentsResult) {
-                                if (!driveContentsResult.getStatus().isSuccess()) {
-                                    Log.i(TAG, "File can't be opened");
-                                    return;
-                                }
-
-                                DriveContents driveContents = driveContentsResult.getDriveContents();
-                                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(driveContents.getInputStream()));
-                                StringBuilder stringBuilder = new StringBuilder();
-                                String line;
-                                try {
-                                    while ((line = bufferedReader.readLine()) != null) {
-                                        stringBuilder.append(line);
-                                    }
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                                String driveContentsString = stringBuilder.toString();
-                                Toast.makeText(getApplicationContext(), "wow", Toast.LENGTH_SHORT).show();
-                                String localContentsString = latestLocal.toString();
-
-                                Log.i("LONG DRIVE CONTENTS", driveContentsString);
-
-                                /*driveContents.commit(googleApiClient, null).setResultCallback(new ResultCallback<Status>() {
-                                    @Override
-                                    public void onResult(Status status) {
-
-                                    }
-                                });*/
-                            }
-                        });
-            }
-        };
     }
 
 }
