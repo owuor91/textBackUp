@@ -297,11 +297,15 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
                                         FileOutputStream fileOutputStream = new FileOutputStream(parcelFileDescriptor.getFileDescriptor());
                                         Writer writer = new OutputStreamWriter(fileOutputStream);
-                                        writer.append(" THIS IS NEW APPENDED TITLE SKIA HIYO SONG, MINI MJANJA AISEE SHAKE YOUR NGOMA SASA");
+                                        writer.write("\n"+" SORRY JB MWANAKE THIS IS NEW APPENDED TITLE SKIA HIYO SONG, MINI MJANJA AISEE SHAKE YOUR NGOMA SASA A MAMBO VIPI SISTA VIPI UNAUMWA WAPI");
+                                        writer.close();
+                                        driveContents.commit(googleApiClient,null);
                                     }
                                     catch (IOException e){
                                         e.printStackTrace();
                                     }
+
+
                                 }
                             });
                 }
@@ -310,3 +314,20 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     }
 
 }
+
+
+
+/*BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(driveContents.getInputStream()));
+                                    StringBuilder stringBuilder = new StringBuilder();
+                                    String line;
+                                    try {
+                                        while ((line=bufferedReader.readLine())!=null){
+                                            stringBuilder.append(line);
+                                        }
+                                    }
+                                    catch (IOException e){
+                                        e.printStackTrace();
+                                    }
+                                    String driveContentsString = stringBuilder.toString();
+                                    String revisedString = driveContentsString + "Vewe vewe vewe vewe vewe, commade na azda, azda papararararararara vwew na azda vewe";*/
+
