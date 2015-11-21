@@ -289,11 +289,13 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                                     }
 
                                     DriveContents driveContents = driveContentsResult.getDriveContents();
+
                                     try {
                                         ParcelFileDescriptor parcelFileDescriptor = driveContents.getParcelFileDescriptor();
                                         FileInputStream fileInputStream = new FileInputStream(parcelFileDescriptor.getFileDescriptor());
 
                                         fileInputStream.read(new byte[fileInputStream.available()]);
+
 
                                         FileOutputStream fileOutputStream = new FileOutputStream(parcelFileDescriptor.getFileDescriptor());
                                         Writer writer = new OutputStreamWriter(fileOutputStream);
