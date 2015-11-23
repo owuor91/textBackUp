@@ -123,6 +123,7 @@
     <orderEntry type="library" exported="" name="play-services-wallet-8.3.0" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-23.0.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-analytics-8.3.0" level="project" />
+    <orderEntry type="library" exported="" name="commons-lang3-3.4" level="project" />
     <orderEntry type="library" exported="" name="play-services-8.3.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-drive-8.3.0" level="project" />
     <orderEntry type="library" exported="" name="support-v4-23.0.0" level="project" />

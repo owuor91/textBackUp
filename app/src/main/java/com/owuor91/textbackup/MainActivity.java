@@ -28,9 +28,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.ConnectionResult;
@@ -56,7 +59,7 @@ import com.google.android.gms.drive.query.SearchableField;
 
 
 public class MainActivity extends AppCompatActivity implements ConnectionCallbacks, OnConnectionFailedListener{
-    private String body, address, row, content="";
+    private String body, address, row, content="", filecontents="", localString="";
     private long datetime=0;
     private int type;
     ListView lvSMS;
@@ -80,8 +83,6 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         //getEmail();
         saveToFile();
         swipeLayout();
-
-
 
     }
 
@@ -136,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     }
 
 
-    public FileOutputStream saveToFile(){
+    public String saveToFile(){
         String fileName = "sms_file.txt";
 
            List<SMSData> messages = this.getSMS();
@@ -156,7 +157,9 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         catch (Exception e){
             e.printStackTrace();
         }
-        return outputStream;
+        filecontents += content;
+        
+        return filecontents;
     }
 
     public  void getEmail(){
@@ -270,6 +273,9 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
 
     private void updateFile(){
+        localString = this.saveToFile();
+
+
         Query query  = new Query.Builder().addFilter(Filters.eq(SearchableField.TITLE, "txtfile.txt")).build();
         Drive.DriveApi.query(googleApiClient, query).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
             @Override
@@ -296,8 +302,18 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
                                         fileInputStream.read(new byte[fileInputStream.available()]);
 
-
                                         FileOutputStream fileOutputStream = new FileOutputStream(parcelFileDescriptor.getFileDescriptor());
+
+                                        String driveContentsString = fileOutputStream.toString();
+                                        String difference = StringUtils.difference(driveContentsString, localString);
+
+                                        if (difference!=null){
+                                            Log.i("STRINGDIFF", localString);
+                                        }
+                                        else{
+                                            Log.i("STRINGDIFF", "STRING DIFFRENCE NOT FOUND COZ ONE OF THE STRINGS IS NOT BEHAVING");
+                                        }
+
                                         Writer writer = new OutputStreamWriter(fileOutputStream);
                                         writer.write("\n"+" SORRY JB MWANAKE THIS IS NEW APPENDED TITLE SKIA HIYO SONG, MINI MJANJA AISEE SHAKE YOUR NGOMA SASA A MAMBO VIPI SISTA VIPI UNAUMWA WAPI");
                                         writer.close();
@@ -306,8 +322,6 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                                     catch (IOException e){
                                         e.printStackTrace();
                                     }
-
-
                                 }
                             });
                 }
@@ -316,20 +330,4 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     }
 
 }
-
-
-
-/*BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(driveContents.getInputStream()));
-                                    StringBuilder stringBuilder = new StringBuilder();
-                                    String line;
-                                    try {
-                                        while ((line=bufferedReader.readLine())!=null){
-                                            stringBuilder.append(line);
-                                        }
-                                    }
-                                    catch (IOException e){
-                                        e.printStackTrace();
-                                    }
-                                    String driveContentsString = stringBuilder.toString();
-                                    String revisedString = driveContentsString + "Vewe vewe vewe vewe vewe, commade na azda, azda papararararararara vwew na azda vewe";*/
 
