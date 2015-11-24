@@ -59,7 +59,8 @@ import com.google.android.gms.drive.query.SearchableField;
 
 
 public class MainActivity extends AppCompatActivity implements ConnectionCallbacks, OnConnectionFailedListener{
-    private String body, address, row, content="", filecontents="", localString="";
+    private String body, address, row, content="", filecontents="", localString="", anything="";
+    static String returnString;
     private long datetime=0;
     private int type;
     ListView lvSMS;
@@ -192,6 +193,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                     .build();
         }
         googleApiClient.connect();
+        //getDriveContents();
     }
 
     @Override
@@ -271,10 +273,54 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                 });
     }
 
+    private String getDriveContents(){
+        Query contentQuery = new Query.Builder().addFilter(Filters.eq(SearchableField.TITLE,"txtfile.txt")).build();
+        Drive.DriveApi.query(googleApiClient, contentQuery).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
+            @Override
+            public void onResult(DriveApi.MetadataBufferResult metadataBufferResult) {
+                MetadataBuffer metadataBuffer = metadataBufferResult.getMetadataBuffer();
+                int resultCount = metadataBuffer.getCount();
+                if (resultCount>0){
+                    DriveId contentFileDriveID = metadataBuffer.get(0).getDriveId();
+                    DriveFile driveFile = Drive.DriveApi.getFile(googleApiClient, contentFileDriveID);
+                    driveFile.open(googleApiClient, DriveFile.MODE_READ_ONLY,null)
+                            .setResultCallback(new ResultCallback<DriveContentsResult>() {
+                                @Override
+                                public void onResult(DriveContentsResult driveContentsResult) {
+                                    if (!driveContentsResult.getStatus().isSuccess()){
+                                        Log.i(TAG, "File cnt be opened");
+                                        return;
+                                    }
+
+                                    DriveContents driveContents = driveContentsResult.getDriveContents();
+                                    try {
+                                        BufferedReader reader = new BufferedReader(new InputStreamReader(driveContents.getInputStream()));
+                                        StringBuilder builder = new StringBuilder();
+                                        String line;
+
+                                        while ((line = reader.readLine()) != null) {
+                                            builder.append(line);
+                                        }
+
+                                        String driveContentsString = builder.toString();
+                                        returnString = driveContentsString;
+                                    }
+                                    catch (IOException ex){
+                                        ex.printStackTrace();
+                                    }
+                                }
+
+                            });
+                }
+            }
+        });
+        return returnString;
+    }
+
 
     private void updateFile(){
         localString = this.saveToFile();
-
+        anything = this.getDriveContents();
 
         Query query  = new Query.Builder().addFilter(Filters.eq(SearchableField.TITLE, "txtfile.txt")).build();
         Drive.DriveApi.query(googleApiClient, query).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
@@ -296,7 +342,9 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
                                     DriveContents driveContents = driveContentsResult.getDriveContents();
 
+
                                     try {
+
                                         ParcelFileDescriptor parcelFileDescriptor = driveContents.getParcelFileDescriptor();
                                         FileInputStream fileInputStream = new FileInputStream(parcelFileDescriptor.getFileDescriptor());
 
@@ -304,11 +352,11 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
                                         FileOutputStream fileOutputStream = new FileOutputStream(parcelFileDescriptor.getFileDescriptor());
 
-                                        String driveContentsString = fileOutputStream.toString();
-                                        String difference = StringUtils.difference(driveContentsString, localString);
+
+                                        String difference = StringUtils.difference(localString,anything);
 
                                         if (difference!=null){
-                                            Log.i("STRINGDIFF", localString);
+                                            Log.d("STRINGDIFF", difference);
                                         }
                                         else{
                                             Log.i("STRINGDIFF", "STRING DIFFRENCE NOT FOUND COZ ONE OF THE STRINGS IS NOT BEHAVING");
