@@ -59,7 +59,7 @@ import com.google.android.gms.drive.query.SearchableField;
 
 
 public class MainActivity extends AppCompatActivity implements ConnectionCallbacks, OnConnectionFailedListener{
-    private String body, address, row, content="", filecontents="", localString="";
+    private String body, address, row, content="", filecontents="", localString="", diffString;
     static String returnString;
     private long datetime=0;
     private int type;
@@ -224,8 +224,11 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     public void onConnected(Bundle bundle) {
         Log.i(TAG, "API client connected");
         //saveFileToDrive();
-        //updateFile();
-        getDriveContents();
+        if (googleApiClient!=null){
+            getDriveContents();
+            updateFile();
+        }
+
     }
 
     @Override
@@ -305,7 +308,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
                                         String driveContentsString = builder.toString();
                                         returnString = driveContentsString;
-                                        String difference = StringUtils.difference(localString,returnString);
+                                        String difference = StringUtils.difference(returnString, localString);
                                         String filename2="diff_file.txt";
 
                                         try {
@@ -331,8 +334,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
     private void updateFile(){
         localString = this.saveToFile();
-        //String anything = this.getDriveContents();
-        //getDriveContents();
+
 
         Query query  = new Query.Builder().addFilter(Filters.eq(SearchableField.TITLE, "txtfile.txt")).build();
         Drive.DriveApi.query(googleApiClient, query).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
@@ -360,15 +362,27 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                                         ParcelFileDescriptor parcelFileDescriptor = driveContents.getParcelFileDescriptor();
                                         FileInputStream fileInputStream = new FileInputStream(parcelFileDescriptor.getFileDescriptor());
 
-                                        fileInputStream.read(new byte[fileInputStream.available()]);
+                                        //fileInputStream.read(new byte[fileInputStream.available()]);
 
                                         FileOutputStream fileOutputStream = new FileOutputStream(parcelFileDescriptor.getFileDescriptor());
 
-
+                                        try {
+                                            FileInputStream diffInputStream = getBaseContext().openFileInput("diff_file.txt");
+                                            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                                            int n;
+                                            byte[] data = new byte[16384];
+                                            while ((n = fileInputStream.read(data, 0, data.length)) != -1) {
+                                                byteArrayOutputStream.write(data, 0, n);
+                                            }
+                                            byteArrayOutputStream.flush();
+                                            diffString = new String(byteArrayOutputStream.toByteArray());
+                                        } catch (IOException io) {
+                                            Log.i(TAG, "Unable to write file contents");
+                                        }
 
 
                                         Writer writer = new OutputStreamWriter(fileOutputStream);
-                                        writer.write("\n"+" SORRY JB MWANAKE THIS IS NEW APPENDED TITLE SKIA HIYO SONG, MINI MJANJA AISEE SHAKE YOUR NGOMA SASA A MAMBO VIPI SISTA VIPI UNAUMWA WAPI");
+                                        writer.write(diffString+"\n\n");
                                         writer.close();
                                         driveContents.commit(googleApiClient,null);
                                     }
