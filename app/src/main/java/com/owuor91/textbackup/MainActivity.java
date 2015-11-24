@@ -59,7 +59,7 @@ import com.google.android.gms.drive.query.SearchableField;
 
 
 public class MainActivity extends AppCompatActivity implements ConnectionCallbacks, OnConnectionFailedListener{
-    private String body, address, row, content="", filecontents="", localString="", anything="";
+    private String body, address, row, content="", filecontents="", localString="";
     static String returnString;
     private long datetime=0;
     private int type;
@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
     private static final String TAG = "Save file ";
     private static final int REQUEST_CODE_RESOLUTION = 3;
-    private FileOutputStream outputStream;
+    private FileOutputStream outputStream, diffstream;
     private GoogleApiClient googleApiClient;
 
 
@@ -193,7 +193,6 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                     .build();
         }
         googleApiClient.connect();
-        //getDriveContents();
     }
 
     @Override
@@ -225,7 +224,8 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     public void onConnected(Bundle bundle) {
         Log.i(TAG, "API client connected");
         //saveFileToDrive();
-        updateFile();
+        //updateFile();
+        getDriveContents();
     }
 
     @Override
@@ -273,7 +273,8 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                 });
     }
 
-    private String getDriveContents(){
+    private void getDriveContents(){
+        localString = this.saveToFile();
         Query contentQuery = new Query.Builder().addFilter(Filters.eq(SearchableField.TITLE,"txtfile.txt")).build();
         Drive.DriveApi.query(googleApiClient, contentQuery).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
             @Override
@@ -304,6 +305,17 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
                                         String driveContentsString = builder.toString();
                                         returnString = driveContentsString;
+                                        String difference = StringUtils.difference(localString,returnString);
+                                        String filename2="diff_file.txt";
+
+                                        try {
+                                            diffstream = openFileOutput(filename2, Context.MODE_PRIVATE);
+                                            diffstream.write(difference.getBytes());
+                                            diffstream.close();
+                                        }
+                                        catch (Exception w){
+                                            w.printStackTrace();
+                                        }
                                     }
                                     catch (IOException ex){
                                         ex.printStackTrace();
@@ -314,13 +326,13 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                 }
             }
         });
-        return returnString;
     }
 
 
     private void updateFile(){
         localString = this.saveToFile();
-        anything = this.getDriveContents();
+        //String anything = this.getDriveContents();
+        //getDriveContents();
 
         Query query  = new Query.Builder().addFilter(Filters.eq(SearchableField.TITLE, "txtfile.txt")).build();
         Drive.DriveApi.query(googleApiClient, query).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
@@ -353,14 +365,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                                         FileOutputStream fileOutputStream = new FileOutputStream(parcelFileDescriptor.getFileDescriptor());
 
 
-                                        String difference = StringUtils.difference(localString,anything);
 
-                                        if (difference!=null){
-                                            Log.d("STRINGDIFF", difference);
-                                        }
-                                        else{
-                                            Log.i("STRINGDIFF", "STRING DIFFRENCE NOT FOUND COZ ONE OF THE STRINGS IS NOT BEHAVING");
-                                        }
 
                                         Writer writer = new OutputStreamWriter(fileOutputStream);
                                         writer.write("\n"+" SORRY JB MWANAKE THIS IS NEW APPENDED TITLE SKIA HIYO SONG, MINI MJANJA AISEE SHAKE YOUR NGOMA SASA A MAMBO VIPI SISTA VIPI UNAUMWA WAPI");
