@@ -5,6 +5,7 @@ import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
@@ -226,7 +227,13 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         Log.i(TAG, "API client connected");
 
         if (googleApiClient!=null){
-            //saveFileToDrive();
+            final String RUNCOUNTPREFS = "RunCountPrefsFile";
+            SharedPreferences settings = getSharedPreferences(RUNCOUNTPREFS,0);
+            if (settings.getBoolean("firstrun", true)){
+                saveFileToDrive();
+                settings.edit().putBoolean("firstrun",false).commit();
+            }
+
             getDriveContents();
             updateFile();
         }
@@ -287,14 +294,14 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
             public void onResult(DriveApi.MetadataBufferResult metadataBufferResult) {
                 MetadataBuffer metadataBuffer = metadataBufferResult.getMetadataBuffer();
                 int resultCount = metadataBuffer.getCount();
-                if (resultCount>0){
+                if (resultCount > 0) {
                     DriveId contentFileDriveID = metadataBuffer.get(0).getDriveId();
                     DriveFile driveFile = Drive.DriveApi.getFile(googleApiClient, contentFileDriveID);
-                    driveFile.open(googleApiClient, DriveFile.MODE_READ_ONLY,null)
+                    driveFile.open(googleApiClient, DriveFile.MODE_READ_ONLY, null)
                             .setResultCallback(new ResultCallback<DriveContentsResult>() {
                                 @Override
                                 public void onResult(DriveContentsResult driveContentsResult) {
-                                    if (!driveContentsResult.getStatus().isSuccess()){
+                                    if (!driveContentsResult.getStatus().isSuccess()) {
                                         Log.i(TAG, "File cnt be opened");
                                         return;
                                     }
@@ -310,19 +317,17 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                                         }
 
                                         String driveContentsString = builder.toString();
-                                        String difference = localString.replace(driveContentsString,"");
-                                        String filename2="diff_file.txt";
+                                        String difference = localString.replace(driveContentsString, "");
+                                        String filename2 = "diff_file.txt";
 
                                         try {
                                             diffstream = openFileOutput(filename2, Context.MODE_PRIVATE);
                                             diffstream.write(difference.getBytes());
                                             diffstream.close();
-                                        }
-                                        catch (Exception w){
+                                        } catch (Exception w) {
                                             w.printStackTrace();
                                         }
-                                    }
-                                    catch (IOException ex){
+                                    } catch (IOException ex) {
                                         ex.printStackTrace();
                                     }
                                 }
