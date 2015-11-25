@@ -81,9 +81,10 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         context = this.getBaseContext();
         setUpToolbar();
         getSMS();
-        //getEmail();
+
         saveToFile();
         swipeLayout();
+
 
     }
 
@@ -223,8 +224,9 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     @Override
     public void onConnected(Bundle bundle) {
         Log.i(TAG, "API client connected");
-        //saveFileToDrive();
+
         if (googleApiClient!=null){
+            //saveFileToDrive();
             getDriveContents();
             updateFile();
         }
@@ -278,6 +280,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
     private void getDriveContents(){
         localString = this.saveToFile();
+        localString = localString.replace("\n","");
         Query contentQuery = new Query.Builder().addFilter(Filters.eq(SearchableField.TITLE,"txtfile.txt")).build();
         Drive.DriveApi.query(googleApiClient, contentQuery).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
             @Override
@@ -307,8 +310,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                                         }
 
                                         String driveContentsString = builder.toString();
-                                        returnString = driveContentsString;
-                                        String difference = StringUtils.difference(returnString, localString);
+                                        String difference = localString.replace(driveContentsString,"");
                                         String filename2="diff_file.txt";
 
                                         try {
@@ -358,7 +360,6 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
 
                                     try {
-
                                         ParcelFileDescriptor parcelFileDescriptor = driveContents.getParcelFileDescriptor();
                                         FileInputStream fileInputStream = new FileInputStream(parcelFileDescriptor.getFileDescriptor());
 
@@ -371,7 +372,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                                             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                                             int n;
                                             byte[] data = new byte[16384];
-                                            while ((n = fileInputStream.read(data, 0, data.length)) != -1) {
+                                            while ((n = diffInputStream.read(data, 0, data.length)) != -1) {
                                                 byteArrayOutputStream.write(data, 0, n);
                                             }
                                             byteArrayOutputStream.flush();
@@ -382,9 +383,11 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
 
                                         Writer writer = new OutputStreamWriter(fileOutputStream);
-                                        writer.write(diffString+"\n\n");
-                                        writer.close();
-                                        driveContents.commit(googleApiClient,null);
+                                        if (diffString != ""){
+                                            writer.write(diffString);
+                                            writer.close();
+                                            driveContents.commit(googleApiClient,null);
+                                        }
                                     }
                                     catch (IOException e){
                                         e.printStackTrace();
